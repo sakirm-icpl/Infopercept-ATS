@@ -7,6 +7,11 @@ class InterviewService {
     return response.data;
   }
 
+  async bulkAssignStages(applicationId, bulkAssignmentData) {
+    const response = await apiClient.post(`/api/applications/${applicationId}/bulk-assign-stages`, bulkAssignmentData);
+    return response.data;
+  }
+
   async getStageAssignments(applicationId) {
     const response = await apiClient.get(`/api/interviews/applications/${applicationId}/assignments`);
     return response.data;
@@ -61,6 +66,37 @@ class InterviewService {
 
   async getStageStatus(applicationId) {
     const response = await apiClient.get(`/api/interviews/applications/${applicationId}/stage-status`);
+    return response.data;
+  }
+
+  // New Stage Feedback System
+  async submitStageFeedback(applicationId, stageNumber, feedbackData) {
+    const response = await apiClient.post(
+      `/api/applications/${applicationId}/stage/${stageNumber}/feedback`,
+      feedbackData
+    );
+    return response.data;
+  }
+
+  async getStageFeedback(applicationId, stageNumber) {
+    const response = await apiClient.get(
+      `/api/applications/${applicationId}/stage/${stageNumber}/feedback`
+    );
+    return response.data;
+  }
+
+  async startStageFeedback(applicationId, stageNumber) {
+    const response = await apiClient.post(
+      `/api/applications/${applicationId}/stage/${stageNumber}/start`
+    );
+    return response.data;
+  }
+
+  async updateStageStatus(applicationId, stageNumber, status) {
+    const response = await apiClient.put(
+      `/api/applications/${applicationId}/stage/${stageNumber}/status`,
+      { status }
+    );
     return response.data;
   }
 

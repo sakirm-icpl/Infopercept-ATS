@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { interviewService } from '../services/interviewService';
 import { applicationService } from '../services/applicationService';
 import { userService } from '../services/userService';
-import Layout from '../components/Layout';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -822,34 +821,29 @@ const InterviewForm = () => {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-screen">
-          <LoadingSpinner />
-        </div>
-      </Layout>
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner />
+      </div>
     );
   }
 
   if (!application) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Application Not Found</h2>
-            <Button onClick={() => navigate('/app/my-assignments')}>
-              Back to Assignments
-            </Button>
-          </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Application Not Found</h2>
+          <Button onClick={() => navigate('/app/my-assignments')}>
+            Back to Assignments
+          </Button>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   const stageInfo = getStageInfo();
 
   return (
-    <Layout>
-      <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="max-w-4xl mx-auto py-8 px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Interview Feedback - Stage {stageNumber}
@@ -923,8 +917,7 @@ const InterviewForm = () => {
             </div>
           </form>
         </Card>
-      </div>
-    </Layout>
+    </div>
   );
 };
 

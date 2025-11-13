@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { userService } from '../services/userService';
-import Layout from '../components/Layout';
 import { Search, Filter, Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
 
 const UserManagement = () => {
@@ -212,17 +211,14 @@ const UserManagement = () => {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-        </div>
-      </Layout>
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
@@ -586,8 +582,7 @@ const UserManagement = () => {
             </div>
           </div>
         )}
-      </div>
-    </Layout>
+    </div>
   );
 };
 

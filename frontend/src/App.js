@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { NotificationProvider } from './components/Notification';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -16,8 +17,10 @@ import JobsList from './pages/JobsList';
 import Layout from './components/Layout';
 import MyAssignments from './pages/MyAssignments';
 import InterviewForm from './pages/InterviewForm';
+import FeedbackForm from './pages/FeedbackForm';
 import FinalRecommendation from './pages/FinalRecommendation';
 import DiagnosticPage from './pages/DiagnosticPage';
+import FeedbackStatistics from './pages/FeedbackStatistics';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
@@ -113,6 +116,11 @@ const AppContent = () => {
               <InterviewForm />
             </ProtectedRoute>
           } />
+          <Route path="applications/:id/feedback/:stage" element={
+            <ProtectedRoute allowedRoles={['team_member', 'admin', 'hr']}>
+              <FeedbackForm />
+            </ProtectedRoute>
+          } />
           <Route path="applications/:id/final-recommendation" element={
             <ProtectedRoute allowedRoles={['hr', 'admin']}>
               <FinalRecommendation />
@@ -123,6 +131,13 @@ const AppContent = () => {
           <Route path="users" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <UserManagement />
+            </ProtectedRoute>
+          } />
+          
+          {/* Feedback Statistics - Admin and HR */}
+          <Route path="feedback-statistics" element={
+            <ProtectedRoute allowedRoles={['admin', 'hr']}>
+              <FeedbackStatistics />
             </ProtectedRoute>
           } />
           
@@ -137,11 +152,13 @@ const AppContent = () => {
   );
 };
 
-// App with Auth Provider
+// App with Auth Provider and Notification Provider
 const App = () => {
   return (
     <AuthProvider>
-      <AppContent />
+      <NotificationProvider>
+        <AppContent />
+      </NotificationProvider>
     </AuthProvider>
   );
 };

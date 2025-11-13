@@ -548,6 +548,61 @@ body {
   }
 }
 
+/* Mobile-Friendly Form Inputs */
+@media (max-width: 640px) {
+  /* Ensure inputs are easily tappable on mobile (minimum 48px height) */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    min-height: 48px;
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 12px 16px;
+  }
+  
+  /* Make buttons touch-friendly */
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline,
+  .btn-danger,
+  .btn-success {
+    min-height: 48px;
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+  
+  /* Optimize card spacing for mobile */
+  .card {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  /* Improve modal on mobile */
+  .modal-content {
+    max-width: calc(100vw - 2rem);
+    margin: 1rem;
+  }
+  
+  /* Stack form groups more compactly on mobile */
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  
+  /* Optimize table for mobile */
+  .table {
+    font-size: 14px;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.75rem 0.5rem;
+  }
+}
+
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;

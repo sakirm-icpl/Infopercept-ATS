@@ -171,5 +171,17 @@ export const applicationService = {
       console.error('Error fetching available HR users:', error);
       throw error;
     }
+  },
+
+  // Feedback Statistics
+  async getFeedbackStatistics(queryParams = '') {
+    try {
+      const url = queryParams ? `/api/applications/feedback/statistics?${queryParams}` : '/api/applications/feedback/statistics';
+      const response = await apiClient.get(url);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching feedback statistics:', error);
+      throw error;
+    }
   }
 }; 

@@ -11,12 +11,13 @@ import {
   X,
   Briefcase,
   ClipboardList,
-  Bell,
   Search,
-  ChevronDown
+  ChevronDown,
+  BarChart3
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import InfoperceptLogo from './InfoperceptLogo';
+import NotificationDropdown from './NotificationDropdown';
 
 const Layout = () => {
   const { user, logout } = useAuth();
@@ -38,7 +39,8 @@ const Layout = () => {
     ] : []),
     ...(user?.role === 'hr' || user?.role === 'admin' ? [
       { name: 'Job Management', href: '/app/jobs', icon: Briefcase },
-      { name: 'Applications', href: '/app/applications', icon: ClipboardList }
+      { name: 'Applications', href: '/app/applications', icon: ClipboardList },
+      { name: 'Feedback Statistics', href: '/app/feedback-statistics', icon: BarChart3 }
     ] : []),
     ...(user?.role === 'team_member' ? [
       { name: 'My Assignments', href: '/app/my-assignments', icon: ClipboardList },
@@ -191,10 +193,7 @@ const Layout = () => {
               </div>
               
               {/* Notifications */}
-              <button className="p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-xl transition-all duration-200 relative">
-                <Bell className="h-6 w-6" />
-                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-              </button>
+              <NotificationDropdown />
               
               {/* User menu */}
               <div className="relative">
