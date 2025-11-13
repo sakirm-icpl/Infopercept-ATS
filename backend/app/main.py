@@ -5,7 +5,7 @@ import os
 
 from .config import settings
 from .database import connect_to_mongo, close_mongo_connection
-from .routes import auth, users, applications, jobs, interviews
+from .routes import auth, users, applications, jobs, interviews, assignments, feedback, notifications
 
 # Create FastAPI app
 app = FastAPI(
@@ -35,6 +35,9 @@ app.include_router(users.router)
 app.include_router(applications.router)
 app.include_router(jobs.router)
 app.include_router(interviews.router)
+app.include_router(assignments.router)
+app.include_router(feedback.router)
+app.include_router(notifications.router)
 
 
 @app.on_event("startup")

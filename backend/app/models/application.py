@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List
+from typing import Optional, List, Literal
 from enum import Enum
 from datetime import datetime
 from bson import ObjectId
@@ -38,6 +38,48 @@ class HRPanel(str, Enum):
     VIDHI = "Vidhi"
     KOMAL = "Komal"
     NIKITA = "Nikita"
+
+
+# New models for Stage Assignment and Feedback System
+class StageFeedback(BaseModel):
+    """Feedback model for stage assignments"""
+    approval_status: Literal["Approved", "Rejected"]
+    performance_rating: int = Field(..., ge=1, le=10)
+    comments: str = Field(..., min_length=1, max_length=1000)
+    submitted_by: str  # User ID
+    submitted_at: datetime = Field(default_factory=datetime.utcnow)
+    edited_at: Optional[datetime] = None
+    edit_count: int = 0
+
+
+class FeedbackSubmission(BaseModel):
+    """Request model for submitting feedback"""
+    approval_status: Literal["Approved", "Rejected"]
+    performance_rating: int = Field(..., ge=1, le=10)
+    comments: str = Field(..., min_length=1, max_length=1000)
+
+
+class StageAssignmentModel(BaseModel):
+    """Model for tracking stage assignments in audit trail"""
+    application_id: str
+    stage_number: int = Field(..., ge=1, le=7)
+    assigned_to: str  # User ID
+    assigned_by: str  # Admin User ID
+    assigned_at: datetime = Field(default_factory=datetime.utcnow)
+    status: Literal["assigned", "in_progress", "completed"] = "assigned"
+    deadline: Optional[datetime] = None
+    notes: Optional[str] = Field(None, max_length=500)
+    reassigned_from: Optional[str] = None  # User ID if reassigned
+    reassignment_reason: Optional[str] = None
+    completed_at: Optional[datetime] = None
+
+
+class StageAssignmentRequestModel(BaseModel):
+    """Request model for assigning a stage to a team member"""
+    stage_number: int = Field(..., ge=1, le=7)
+    assigned_to: str  # User ID
+    deadline: Optional[datetime] = None
+    notes: Optional[str] = Field(None, max_length=500)
 
 
 # Stage 1: HR Screening
@@ -141,14 +183,32 @@ class ApplicationStages(BaseModel):
     stage6_assigned_to: Optional[str] = None
     stage7_assigned_to: Optional[str] = None
     
-    # Stage status tracking
-    stage1_status: str = "pending"  # pending, assigned, completed, forwarded
+    # Stage status tracking - updated to include "assigned", "in_progress", "completed"
+    stage1_status: str = "pending"  # pending, assigned, in_progress, completed
     stage2_status: str = "pending"
     stage3_status: str = "pending"
     stage4_status: str = "pending"
     stage5_status: str = "pending"
     stage6_status: str = "pending"
     stage7_status: str = "pending"
+    
+    # Stage feedback for each stage
+    stage1_feedback: Optional[StageFeedback] = None
+    stage2_feedback: Optional[StageFeedback] = None
+    stage3_feedback: Optional[StageFeedback] = None
+    stage4_feedback: Optional[StageFeedback] = None
+    stage5_feedback: Optional[StageFeedback] = None
+    stage6_feedback: Optional[StageFeedback] = None
+    stage7_feedback: Optional[StageFeedback] = None
+    
+    # Stage deadlines for each stage
+    stage1_deadline: Optional[datetime] = None
+    stage2_deadline: Optional[datetime] = None
+    stage3_deadline: Optional[datetime] = None
+    stage4_deadline: Optional[datetime] = None
+    stage5_deadline: Optional[datetime] = None
+    stage6_deadline: Optional[datetime] = None
+    stage7_deadline: Optional[datetime] = None
 
 
 # Application Base

@@ -40,8 +40,33 @@ async def create_indexes():
         await Database.db.applications.create_index("candidate_id", unique=True)
         await Database.db.applications.create_index("email", unique=True)
         
+        # Stage assignment indexes on applications collection
+        for stage_num in range(1, 8):
+            await Database.db.applications.create_index(
+                f"stages.stage{stage_num}_assigned_to"
+            )
+        
         # Candidates collection indexes
         await Database.db.candidates.create_index("user_id", unique=True)
+        
+        # Stage assignments collection indexes
+        await Database.db.stage_assignments.create_index(
+            [("application_id", 1), ("stage_number", 1)]
+        )
+        await Database.db.stage_assignments.create_index(
+            [("assigned_to", 1), ("status", 1)]
+        )
+        await Database.db.stage_assignments.create_index("assigned_by")
+        await Database.db.stage_assignments.create_index("deadline")
+        
+        # Notifications collection indexes
+        await Database.db.notifications.create_index(
+            [("user_id", 1), ("is_read", 1)]
+        )
+        await Database.db.notifications.create_index(
+            [("user_id", 1), ("created_at", -1)]
+        )
+        await Database.db.notifications.create_index("application_id")
         
         logger.info("Database indexes created successfully.")
     except Exception as e:

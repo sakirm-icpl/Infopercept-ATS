@@ -83,4 +83,33 @@ require_team_member = require_role(UserRole.TEAM_MEMBER)
 require_candidate = require_role(UserRole.CANDIDATE)
 require_hr_or_admin = require_roles([UserRole.HR, UserRole.ADMIN])
 require_hr_team_or_admin = require_roles([UserRole.HR, UserRole.TEAM_MEMBER, UserRole.ADMIN])
-require_team_or_admin = require_roles([UserRole.TEAM_MEMBER, UserRole.ADMIN]) 
+require_team_or_admin = require_roles([UserRole.TEAM_MEMBER, UserRole.ADMIN])
+
+
+async def verify_stage_assignment(
+    application_id: str,
+    stage_number: int,
+    user_id: str,
+    db
+) -> bool:
+    """
+    Verify that a user is assigned to a specific stage.
+    
+    Args:
+        application_id: ID of the application
+        stage_number: Stage number (1-7)
+        user_id: User ID to verify
+        db: Database instance
+        
+    Returns:
+        bool: True if user is assigned to the stage, False otherwise
+    """
+    try:
+        application = await db.applications.find_one({"_id": ObjectId(application_id)})
+        if not application:
+            return False
+        
+        assigned_to = application.get("stages", {}).get(f"stage{stage_number}_assigned_to")
+        return assigned_to == user_id
+    except Exception:
+        return False 
