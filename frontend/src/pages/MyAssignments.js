@@ -56,16 +56,22 @@ const MyAssignments = () => {
   const getFilteredAssignments = () => {
     if (filter === 'all') return assignments;
     if (filter === 'assigned') {
-      return assignments.filter(a => a.status === 'assigned' || a.status === 'in_progress');
+      return assignments.filter(a => {
+        const status = a.status?.toLowerCase();
+        return status === 'assigned' || status === 'in_progress' || status === 'pending';
+      });
     }
-    return assignments.filter(assignment => assignment.status === filter);
+    return assignments.filter(assignment => assignment.status?.toLowerCase() === filter.toLowerCase());
   };
 
   const getStats = () => {
     const total = assignments.length;
-    const pending = assignments.filter(a => a.status === 'assigned' || a.status === 'in_progress').length;
-    const completed = assignments.filter(a => a.status === 'completed').length;
-    const forwarded = assignments.filter(a => a.status === 'forwarded').length;
+    const pending = assignments.filter(a => {
+      const status = a.status?.toLowerCase();
+      return status === 'assigned' || status === 'in_progress' || status === 'pending';
+    }).length;
+    const completed = assignments.filter(a => a.status?.toLowerCase() === 'completed').length;
+    const forwarded = assignments.filter(a => a.status?.toLowerCase() === 'forwarded').length;
     
     return { total, pending, completed, forwarded };
   };
@@ -335,16 +341,16 @@ const MyAssignments = () => {
                     </div>
                     
                     <div className="flex flex-col gap-2 w-full">
-                      {(assignment.status === 'assigned' || assignment.status === 'in_progress') && (
+                      {(['assigned', 'in_progress', 'pending'].includes(assignment.status?.toLowerCase())) && (
                         <Link
                           to={`/app/applications/${assignment.application_id}/feedback/${assignment.stage_number}`}
                           className="btn-primary whitespace-nowrap text-center min-h-[48px] flex items-center justify-center"
                         >
-                          Start Interview
+                          {user?.role === 'hr' ? 'Provide Feedback' : 'Start Interview'}
                         </Link>
                       )}
                       
-                      {assignment.status === 'completed' && (
+                      {assignment.status?.toLowerCase() === 'completed' && (
                         <Link
                           to={`/app/applications/${assignment.application_id}/feedback/${assignment.stage_number}`}
                           className="btn-secondary whitespace-nowrap text-center min-h-[48px] flex items-center justify-center"
@@ -357,7 +363,7 @@ const MyAssignments = () => {
                         to={`/app/applications/${assignment.application_id}`}
                         className="btn-outline whitespace-nowrap text-center min-h-[48px] flex items-center justify-center"
                       >
-                        View Application
+                        View Details
                       </Link>
                     </div>
                   </div>

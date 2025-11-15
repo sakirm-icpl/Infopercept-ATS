@@ -37,8 +37,14 @@ async def create_indexes():
         await Database.db.users.create_index("mobile", unique=True)
         
         # Applications collection indexes
-        await Database.db.applications.create_index("candidate_id", unique=True)
-        await Database.db.applications.create_index("email", unique=True)
+        # Allow candidates to apply to multiple jobs - no unique constraint on candidate_id or email
+        await Database.db.applications.create_index("candidate_id")
+        await Database.db.applications.create_index("email")
+        # Ensure unique combination of candidate_id and job_id (one application per job per candidate)
+        await Database.db.applications.create_index(
+            [("candidate_id", 1), ("job_id", 1)], 
+            unique=True
+        )
         
         # Stage assignment indexes on applications collection
         for stage_num in range(1, 8):

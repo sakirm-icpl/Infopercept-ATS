@@ -59,15 +59,28 @@ class FeedbackService:
                 detail="Stage number must be between 1 and 7"
             )
         
-        # Verify user is assigned to this stage
-        stage_assigned_to_field = f"stage{stage_number}_assigned_to"
-        assigned_to = application.get("stages", {}).get(stage_assigned_to_field)
-        
-        if assigned_to != submitted_by:
+        # Verify user is assigned to this stage or is HR/Admin
+        # Get user to check role
+        user = await self.db.users.find_one({"_id": ObjectId(submitted_by)})
+        if not user:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You are not assigned to this stage"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
             )
+        
+        user_role = user.get("role")
+        
+        # HR and Admin can submit feedback for any stage
+        # Team members can only submit for stages assigned to them
+        if user_role not in ["hr", "admin"]:
+            stage_assigned_to_field = f"stage{stage_number}_assigned_to"
+            assigned_to = application.get("stages", {}).get(stage_assigned_to_field)
+            
+            if assigned_to != submitted_by:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You are not assigned to this stage. Only assigned team members can submit feedback."
+                )
         
         # Check if feedback already exists (for edit validation)
         stage_feedback_field = f"stage{stage_number}_feedback"

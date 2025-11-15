@@ -266,6 +266,9 @@ class ApplicationListResponse(BaseModel):
     current_stage: int
     status: str
     created_at: datetime
+    updated_at: datetime
+    date_of_application: datetime
+    mobile: str
 
 
 # Team Member Assignment Models

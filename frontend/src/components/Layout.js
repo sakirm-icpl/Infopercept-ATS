@@ -35,19 +35,23 @@ const Layout = () => {
   const navigation = [
     { name: 'Dashboard', href: '/app/dashboard', icon: Home },
     ...(user?.role === 'candidate' ? [
-      { name: 'Browse Jobs', href: '/app/jobs', icon: FileText }
+      { name: 'My Applications', href: '/app/my-applications', icon: ClipboardList },
+      { name: 'Browse Jobs', href: '/app/jobs', icon: Search }
     ] : []),
-    ...(user?.role === 'hr' || user?.role === 'admin' ? [
+    ...(user?.role === 'hr' ? [
+      { name: 'My Assignments', href: '/app/my-assignments', icon: ClipboardList },
+      { name: 'All Applications', href: '/app/applications', icon: FileText },
+      { name: 'Feedback Statistics', href: '/app/feedback-statistics', icon: BarChart3 }
+    ] : []),
+    ...(user?.role === 'admin' ? [
       { name: 'Job Management', href: '/app/jobs', icon: Briefcase },
       { name: 'Applications', href: '/app/applications', icon: ClipboardList },
-      { name: 'Feedback Statistics', href: '/app/feedback-statistics', icon: BarChart3 }
+      { name: 'Feedback Statistics', href: '/app/feedback-statistics', icon: BarChart3 },
+      { name: 'User Management', href: '/app/users', icon: Users }
     ] : []),
     ...(user?.role === 'team_member' ? [
       { name: 'My Assignments', href: '/app/my-assignments', icon: ClipboardList },
       { name: 'All Applications', href: '/app/applications', icon: FileText }
-    ] : []),
-    ...(user?.role === 'admin' ? [
-      { name: 'User Management', href: '/app/users', icon: Users }
     ] : []),
   ];
 

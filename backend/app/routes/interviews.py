@@ -44,11 +44,11 @@ async def get_stage_assignments(
 async def get_my_assignments(
     current_user: UserResponse = Depends(get_current_active_user)
 ):
-    """Get all applications assigned to the current team member."""
-    if current_user.role != UserRole.TEAM_MEMBER:
+    """Get all applications assigned to the current team member or HR."""
+    if current_user.role not in [UserRole.TEAM_MEMBER, UserRole.HR]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only team members can view their assignments"
+            detail="Only team members and HR can view their assignments"
         )
     
     interview_service = InterviewService()

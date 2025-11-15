@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import apiClient from '../services/apiClient';
 import { 
   Users, 
   FileText, 
   Clock, 
   CheckCircle, 
-  XCircle, 
   TrendingUp,
   Shield,
   Briefcase,
@@ -14,7 +14,6 @@ import {
   ArrowRight,
   Plus,
   Search,
-  Filter,
   Eye,
   Target,
   Zap,
@@ -23,18 +22,44 @@ import {
 import { Link } from 'react-router-dom';
 import Card from '../components/Card';
 import StatusBadge from '../components/StatusBadge';
-import ProgressBar from '../components/ProgressBar';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
 
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
+    fetchDashboardData();
+  }, [user]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      
+      if (user?.role === 'candidate') {
+        // Fetch candidate's applications
+        const response = await apiClient.get('/api/applications/');
+        const applications = response.data;
+        
+        const inProgress = applications.filter(app => app.status === 'in_progress').length;
+        const completed = applications.filter(app => app.status === 'completed').length;
+        const successRate = applications.length > 0 
+          ? Math.round((completed / applications.length) * 100) 
+          : 0;
+        
+        setStats({
+          totalApplications: applications.length,
+          inProgress,
+          successRate
+        });
+      }
+      
       setLoading(false);
-    }, 1000);
-  }, []);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setLoading(false);
+    }
+  };
 
   const getRoleSpecificContent = () => {
     switch (user?.role) {
@@ -45,39 +70,39 @@ const Dashboard = () => {
           stats: [
             {
               title: 'Applications Submitted',
-              value: '0',
+              value: stats?.totalApplications?.toString() || '0',
               icon: FileText,
               color: 'primary',
-              change: 'Start your journey'
+              change: stats?.totalApplications > 0 ? `${stats.totalApplications} application${stats.totalApplications !== 1 ? 's' : ''}` : 'Start your journey'
             },
             {
-              title: 'Interviews Scheduled',
-              value: '0',
+              title: 'In Progress',
+              value: stats?.inProgress?.toString() || '0',
               icon: Clock,
               color: 'warning',
-              change: 'No interviews yet'
+              change: stats?.inProgress > 0 ? `${stats.inProgress} active` : 'No interviews yet'
             },
             {
               title: 'Success Rate',
-              value: '0%',
+              value: `${stats?.successRate || 0}%`,
               icon: TrendingUp,
               color: 'success',
-              change: 'Apply to get started'
+              change: stats?.totalApplications > 0 ? 'Keep going!' : 'Apply to get started'
             }
           ],
           quickActions: [
+            {
+              title: 'My Applications',
+              description: 'Track your application status',
+              icon: FileText,
+              href: '/app/my-applications',
+              color: 'primary'
+            },
             {
               title: 'Browse Open Positions',
               description: 'Find new opportunities',
               icon: Search,
               href: '/app/jobs',
-              color: 'primary'
-            },
-            {
-              title: 'Update Profile',
-              description: 'Keep your information current',
-              icon: Users,
-              href: '/app/profile',
               color: 'secondary'
             }
           ],

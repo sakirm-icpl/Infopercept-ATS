@@ -16,6 +16,7 @@ import JobDetail from './pages/JobDetail';
 import JobsList from './pages/JobsList';
 import Layout from './components/Layout';
 import MyAssignments from './pages/MyAssignments';
+import MyApplications from './pages/MyApplications';
 import InterviewForm from './pages/InterviewForm';
 import FeedbackForm from './pages/FeedbackForm';
 import FinalRecommendation from './pages/FinalRecommendation';
@@ -92,6 +93,11 @@ const AppContent = () => {
               <ApplicationForm />
             </ProtectedRoute>
           } />
+          <Route path="my-applications" element={
+            <ProtectedRoute allowedRoles={['candidate']}>
+              <MyApplications />
+            </ProtectedRoute>
+          } />
           
           {/* HR and Admin Routes */}
           <Route path="applications" element={
@@ -100,14 +106,14 @@ const AppContent = () => {
             </ProtectedRoute>
           } />
           <Route path="applications/:id" element={
-            <ProtectedRoute allowedRoles={['hr', 'admin', 'team_member']}>
+            <ProtectedRoute allowedRoles={['hr', 'admin', 'team_member', 'candidate']}>
               <ApplicationDetail />
             </ProtectedRoute>
           } />
           
-          {/* Team Member Routes */}
+          {/* Team Member and HR Routes */}
           <Route path="my-assignments" element={
-            <ProtectedRoute allowedRoles={['team_member']}>
+            <ProtectedRoute allowedRoles={['team_member', 'hr']}>
               <MyAssignments />
             </ProtectedRoute>
           } />

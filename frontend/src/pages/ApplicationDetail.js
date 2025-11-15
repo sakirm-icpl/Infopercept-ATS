@@ -253,7 +253,7 @@ const ApplicationDetail = () => {
         
         {/* Action Buttons */}
         <div className="flex items-center space-x-3">
-          {/* Assignment History Button (Admin only) */}
+          {/* Assignment History Button (Admin and HR) */}
           {(user?.role === 'hr' || user?.role === 'admin') && (
             <button
               onClick={() => setShowHistoryModal(true)}
@@ -264,8 +264,8 @@ const ApplicationDetail = () => {
             </button>
           )}
           
-          {/* Bulk Assignment Button */}
-          {(user?.role === 'hr' || user?.role === 'admin') && getAvailableStagesForBulkAssignment().length > 1 && (
+          {/* Bulk Assignment Button (Admin only) */}
+          {user?.role === 'admin' && getAvailableStagesForBulkAssignment().length > 1 && (
             <button
               onClick={() => setShowBulkAssignmentModal(true)}
               className="btn-primary inline-flex items-center"
@@ -275,8 +275,8 @@ const ApplicationDetail = () => {
             </button>
           )}
           
-          {/* HR Assignment Button */}
-          {(user?.role === 'hr' || user?.role === 'admin') && (
+          {/* Single Stage Assignment Button (Admin only) */}
+          {user?.role === 'admin' && (
             <button
               onClick={() => {
                 console.log('Opening assignment modal');
@@ -439,8 +439,8 @@ const ApplicationDetail = () => {
                     </div>
                   </div>
                   
-                  {/* Action buttons for Admin/HR */}
-                  {(user?.role === 'hr' || user?.role === 'admin') && status === 'pending' && (
+                  {/* Action buttons for Admin only */}
+                  {user?.role === 'admin' && status === 'pending' && (
                     <button
                       onClick={() => {
                         setSelectedStage(stageNumber);

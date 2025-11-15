@@ -1,5 +1,6 @@
 """Configuration module for application settings and templates."""
 
+from .settings import settings
 from .feedback_templates import (
     FEEDBACK_TEMPLATES,
     get_all_templates,
@@ -9,6 +10,7 @@ from .feedback_templates import (
 )
 
 __all__ = [
+    "settings",
     "FEEDBACK_TEMPLATES",
     "get_all_templates",
     "get_templates_by_category",
