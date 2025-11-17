@@ -70,6 +70,15 @@ class ApplicationService:
             application["id"] = str(application["_id"])
             del application["_id"]
             
+            # Get job title for the application
+            from .job_service import JobService
+            job_service = JobService()
+            job = await job_service.get_job_by_id(application["job_id"])
+            if job:
+                application["job_title"] = job.title
+            else:
+                application["job_title"] = "Unknown Job"
+            
             return ApplicationResponse(**application)
         except Exception:
             return None

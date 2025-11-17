@@ -28,7 +28,7 @@ const ApplicationsList = () => {
     const matchesSearch = 
       app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.position_applied_for.toLowerCase().includes(searchTerm.toLowerCase());
+      (app.job_title && app.job_title.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
     
@@ -145,7 +145,7 @@ const ApplicationsList = () => {
                           <span className="font-medium">Email:</span> {app.email}
                         </div>
                         <div>
-                          <span className="font-medium">Position:</span> {app.job_id}
+                          <span className="font-medium">Position:</span> {app.job_title || 'Unknown'}
                         </div>
                         <div>
                           <span className="font-medium">Applied:</span> {new Date(app.created_at).toLocaleDateString()}

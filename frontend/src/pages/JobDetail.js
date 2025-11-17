@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { jobService } from '../services/jobService';
+import ApplyOnBehalfModal from '../components/ApplyOnBehalfModal';
 import { 
   ArrowLeft, 
   MapPin, 
@@ -15,7 +16,8 @@ import {
   Eye,
   FileText,
   CheckCircle,
-  XCircle
+  XCircle,
+  UserPlus
 } from 'lucide-react';
 
 const JobDetail = () => {
@@ -25,9 +27,12 @@ const JobDetail = () => {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showApplyOnBehalfModal, setShowApplyOnBehalfModal] = useState(false);
 
   const isCandidate = user?.role === 'candidate';
-  const isHRorAdmin = user?.role === 'hr' || user?.role === 'admin';
+  const isHR = user?.role === 'hr';
+  const isAdmin = user?.role === 'admin';
+  const isHRorAdmin = isHR || isAdmin;
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -150,9 +155,35 @@ const JobDetail = () => {
       </div>
 
       {/* Job Actions */}
-      {isHRorAdmin ? (
+      {isHR ? (
+        /* HR can only view and apply on behalf */
         <div className="bg-white rounded-lg shadow p-4 mb-6">
           <div className="flex flex-wrap gap-3">
+            {job.status === 'active' && (
+              <button
+                onClick={() => setShowApplyOnBehalfModal(true)}
+                className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-200 inline-flex items-center"
+              >
+                <UserPlus className="mr-2 h-4 w-4" />
+                Apply on Behalf
+              </button>
+            )}
+          </div>
+        </div>
+      ) : isAdmin ? (
+        /* Admin has full control */
+        <div className="bg-white rounded-lg shadow p-4 mb-6">
+          <div className="flex flex-wrap gap-3">
+            {job.status === 'active' && (
+              <button
+                onClick={() => setShowApplyOnBehalfModal(true)}
+                className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-200 inline-flex items-center"
+              >
+                <UserPlus className="mr-2 h-4 w-4" />
+                Apply on Behalf
+              </button>
+            )}
+            
             <Link
               to={`/app/jobs/${jobId}/edit`}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-200 inline-flex items-center"
@@ -328,6 +359,14 @@ const JobDetail = () => {
           </div>
         </div>
       )}
+
+      {/* Apply on Behalf Modal */}
+      <ApplyOnBehalfModal
+        isOpen={showApplyOnBehalfModal}
+        onClose={() => setShowApplyOnBehalfModal(false)}
+        jobId={jobId}
+        jobTitle={job.title}
+      />
     </div>
   );
 };

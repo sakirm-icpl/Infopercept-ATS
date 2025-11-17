@@ -16,6 +16,68 @@ import json
 router = APIRouter(prefix="/api/applications", tags=["Applications"])
 
 
+@router.post("/apply-on-behalf", response_model=ApplicationResponse, status_code=status.HTTP_201_CREATED)
+async def apply_on_behalf(
+    candidate_id: str = Form(...),
+    job_id: str = Form(...),
+    resume: Optional[UploadFile] = File(None),
+    current_user: UserResponse = Depends(require_hr_or_admin)
+):
+    """Apply on behalf of a candidate (HR/Admin only)."""
+    try:
+        application_service = ApplicationService()
+        
+        # Get candidate information
+        from ..services.user_service import UserService
+        user_service = UserService()
+        candidate = await user_service.get_user_by_id(candidate_id)
+        
+        if not candidate:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Candidate not found"
+            )
+        
+        if candidate.role != UserRole.CANDIDATE:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Selected user is not a candidate"
+            )
+        
+        # Save resume file if provided
+        resume_filename = None
+        if resume:
+            try:
+                resume_filename = await save_upload_file(resume)
+            except HTTPException as e:
+                raise e
+            except Exception as e:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Failed to process resume file: {str(e)}"
+                )
+        
+        # Create application data
+        application_data = ApplicationCreate(
+            name=candidate.username,
+            email=candidate.email,
+            mobile=candidate.mobile,
+            job_id=job_id,
+            date_of_application=datetime.utcnow(),
+            resume_filename=resume_filename
+        )
+        
+        return await application_service.create_application(application_data, candidate_id)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create application: {str(e)}"
+        )
+
+
 @router.post("/", response_model=ApplicationResponse, status_code=status.HTTP_201_CREATED)
 async def create_application(
     name: str = Form(...),

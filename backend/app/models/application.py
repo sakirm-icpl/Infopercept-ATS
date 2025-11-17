@@ -252,6 +252,7 @@ class ApplicationResponse(ApplicationBase):
     status: str
     created_at: datetime
     updated_at: datetime
+    job_title: Optional[str] = None  # Will be populated from job data
 
     class Config:
         from_attributes = True

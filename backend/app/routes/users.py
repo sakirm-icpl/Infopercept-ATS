@@ -37,6 +37,13 @@ async def get_team_members(current_user: UserResponse = Depends(require_hr_or_ad
     return await user_service.get_users_by_role(UserRole.TEAM_MEMBER)
 
 
+@router.get("/candidates", response_model=List[UserResponse])
+async def get_candidates(current_user: UserResponse = Depends(require_hr_or_admin)):
+    """Get all candidates (HR/Admin only)."""
+    user_service = UserService()
+    return await user_service.get_users_by_role(UserRole.CANDIDATE)
+
+
 @router.get("/assignment-users", response_model=List[UserResponse])
 async def get_assignment_users(current_user: UserResponse = Depends(require_hr_or_admin)):
     """Get all users available for assignment (HR, Admin, Team Members - excluding candidates)."""

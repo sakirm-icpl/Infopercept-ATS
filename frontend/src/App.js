@@ -72,12 +72,12 @@ const AppContent = () => {
             </ProtectedRoute>
           } />
           <Route path="jobs/create" element={
-            <ProtectedRoute allowedRoles={['hr', 'admin']}>
+            <ProtectedRoute allowedRoles={['admin']}>
               <JobCreate />
             </ProtectedRoute>
           } />
           <Route path="jobs/:jobId/edit" element={
-            <ProtectedRoute allowedRoles={['hr', 'admin']}>
+            <ProtectedRoute allowedRoles={['admin']}>
               <JobEdit />
             </ProtectedRoute>
           } />

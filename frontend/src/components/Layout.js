@@ -39,6 +39,7 @@ const Layout = () => {
       { name: 'Browse Jobs', href: '/app/jobs', icon: Search }
     ] : []),
     ...(user?.role === 'hr' ? [
+      { name: 'Job Management', href: '/app/jobs', icon: Briefcase },
       { name: 'My Assignments', href: '/app/my-assignments', icon: ClipboardList },
       { name: 'All Applications', href: '/app/applications', icon: FileText },
       { name: 'Feedback Statistics', href: '/app/feedback-statistics', icon: BarChart3 }
