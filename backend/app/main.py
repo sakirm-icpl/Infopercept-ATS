@@ -43,7 +43,12 @@ app.include_router(notifications.router)
 @app.on_event("startup")
 async def startup_event():
     """Initialize database connection on startup."""
-    await connect_to_mongo()
+    try:
+        await connect_to_mongo()
+    except Exception as e:
+        import sys
+        print(f"FATAL: Could not initialize database connection: {e}", file=sys.stderr)
+        raise
 
 
 @app.on_event("shutdown")

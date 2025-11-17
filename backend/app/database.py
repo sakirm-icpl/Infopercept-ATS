@@ -1,6 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from .config import settings
 import logging
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -9,18 +10,33 @@ class Database:
     db = None
 
 async def connect_to_mongo():
-    """Create database connection."""
-    try:
-        Database.client = AsyncIOMotorClient(settings.mongodb_url)
-        Database.db = Database.client.get_database()
-        
-        # Create indexes for unique constraints
-        await create_indexes()
-        
-        logger.info("Connected to MongoDB.")
-    except Exception as e:
-        logger.error(f"Could not connect to MongoDB: {e}")
-        raise e
+    """Create database connection with retry logic."""
+    max_retries = 5
+    retry_delay = 2
+    
+    for attempt in range(max_retries):
+        try:
+            logger.info(f"Attempting to connect to MongoDB (attempt {attempt + 1}/{max_retries})...")
+            Database.client = AsyncIOMotorClient(settings.mongodb_url, serverSelectionTimeoutMS=5000)
+            
+            # Test the connection
+            await Database.client.admin.command('ping')
+            
+            Database.db = Database.client.get_database()
+            
+            # Create indexes for unique constraints
+            await create_indexes()
+            
+            logger.info("Successfully connected to MongoDB.")
+            return
+        except Exception as e:
+            logger.error(f"MongoDB connection attempt {attempt + 1} failed: {e}")
+            if attempt < max_retries - 1:
+                logger.info(f"Retrying in {retry_delay} seconds...")
+                await asyncio.sleep(retry_delay)
+            else:
+                logger.error(f"Failed to connect to MongoDB after {max_retries} attempts.")
+                raise e
 
 async def close_mongo_connection():
     """Close database connection."""
