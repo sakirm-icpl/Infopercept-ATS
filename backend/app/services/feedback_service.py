@@ -579,12 +579,12 @@ class FeedbackService:
     def _get_stage_name(self, stage_number: int) -> str:
         """Get the name of a stage by its number."""
         stages = {
-            1: 'HR Screening',
-            2: 'Practical Lab Test',
-            3: 'Technical Interview',
-            4: 'HR Round',
-            5: 'BU Lead Interview',
-            6: 'CEO Interview',
-            7: 'Final Recommendation & Offer'
+            1: 'Resume Screening',
+            2: 'HR Telephonic Interview',
+            3: 'Practical Lab Test',
+            4: 'Technical Interview',
+            5: 'BU Lead Round',
+            6: 'HR Head Round',
+            7: 'CEO Round'
         }
         return stages.get(stage_number, f'Stage {stage_number}')

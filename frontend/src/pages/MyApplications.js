@@ -42,13 +42,13 @@ const MyApplications = () => {
   const getStageInfo = (application) => {
     const currentStage = application.current_stage || 1;
     const stages = [
-      'HR Screening',
+      'Resume Screening',
+      'HR Telephonic Interview',
       'Practical Lab Test',
       'Technical Interview',
-      'HR Round',
-      'BU Lead Interview',
-      'CEO Interview',
-      'Final Recommendation'
+      'BU Lead Round',
+      'HR Head Round',
+      'CEO Round'
     ];
     return {
       current: currentStage,

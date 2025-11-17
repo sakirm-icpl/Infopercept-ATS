@@ -12,13 +12,13 @@ A comprehensive Applicant Tracking System with multi-stage interview workflow, b
 - **Candidate**: Apply to jobs, track application status
 
 ### 📋 Interview Workflow (7 Stages)
-1. **HR Screening Round** - Initial screening with MCQ test and communication assessment
-2. **Hands-On Practical LAB Test** - Technical coding/assessment
-3. **Technical Round** - Technical interview with detailed feedback
-4. **HR Round** - HR interview with comprehensive ratings
-5. **BU Lead Interview** - Business Unit Lead interview
-6. **CEO Interview** - Final CEO interview
-7. **Final Recommendation & Offer** - Final decision and recommendations
+1. **Resume Screening** - Initial resume review and screening
+2. **HR Telephonic Interview** - Telephonic screening with HR
+3. **Practical Lab Test** - Technical coding/assessment
+4. **Technical Interview** - Technical interview with detailed feedback
+5. **BU Lead Round** - Business Unit Lead interview
+6. **HR Head Round** - HR Head interview
+7. **CEO Round** - Final CEO interview
 
 ### 🎯 Key Features
 - **Role-based Access Control**: Secure access based on user roles
