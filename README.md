@@ -85,11 +85,14 @@ docker-compose logs -f
 - **MongoDB Express**: http://localhost:8081 (optional)
 
 ### 5. Default Login Credentials
+
+⚠️ **Only ONE admin user is created during installation:**
+
 - **Admin**: admin@infopercept.com / Welcome@ATS
-- **HR**: hr@infopercept.com / Welcome@ATS
-- **Team Member**: techlead@infopercept.com / Welcome@ATS
-- **Requester**: department@infopercept.com / Welcome@ATS
-- **Candidate**: candidate1@example.com / Welcome@ATS
+
+**IMPORTANT:** Change the default password immediately after first login!
+
+All other users (HR, Team Members, Requesters, Candidates) must be created through the application interface by the admin user.
 
 ## 📋 Interview Workflow Guide
 
