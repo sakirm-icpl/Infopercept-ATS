@@ -167,12 +167,12 @@ class FinalRecommendationOffer(BaseModel):
 # Application Stages
 class ApplicationStages(BaseModel):
     stage1_hr_screening: Optional[HRScreening] = None
-    stage2_practical_lab: Optional[PracticalLabTest] = None
-    stage3_technical_interview: Optional[TechnicalInterview] = None
-    stage4_hr_round: Optional[HRRound] = None
+    stage2_hr_telephonic: Optional[HRScreening] = None  # Stage 2: HR Telephonic Interview
+    stage3_practical_lab: Optional[PracticalLabTest] = None  # Stage 3: Practical Lab Test
+    stage4_technical_interview: Optional[TechnicalInterview] = None  # Stage 4: Technical Interview
     stage5_bu_lead_interview: Optional[BULeadInterview] = None
-    stage6_ceo_interview: Optional[CEOInterview] = None
-    stage7_final_recommendation: Optional[FinalRecommendationOffer] = None
+    stage6_hr_head_round: Optional[HRRound] = None  # Stage 6: HR Head Round
+    stage7_ceo_round: Optional[CEOInterview] = None  # Stage 7: CEO Round
     
     # Team Member Assignments for each stage
     stage1_assigned_to: Optional[str] = None  # User ID of assigned team member

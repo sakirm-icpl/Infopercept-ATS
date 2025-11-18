@@ -527,19 +527,31 @@ const FeedbackForm = () => {
       {/* Feedback Form */}
       <Card>
         {isReadOnly && (user?.role === 'admin' || user?.role === 'hr') && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md flex items-center">
-            <svg className="h-5 w-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-            <div>
-              <p className="text-sm text-blue-800 font-medium">
-                View Only Mode
-              </p>
-              <p className="text-xs text-blue-700">
-                As an {user?.role === 'admin' ? 'administrator' : 'HR member'}, you can view this feedback but cannot modify it.
-              </p>
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md flex items-center justify-between">
+            <div className="flex items-center">
+              <svg className="h-5 w-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <div>
+                <p className="text-sm text-blue-800 font-medium">
+                  Admin/HR View
+                </p>
+                <p className="text-xs text-blue-700">
+                  As an {user?.role === 'admin' ? 'administrator' : 'HR member'}, you can edit this feedback.
+                </p>
+              </div>
             </div>
+            {!isEditing && (
+              <Button
+                type="button"
+                onClick={handleEdit}
+                variant="primary"
+                className="ml-4"
+              >
+                Edit Feedback
+              </Button>
+            )}
           </div>
         )}
         {isReadOnly && user?.role === 'team_member' && !canEdit && (

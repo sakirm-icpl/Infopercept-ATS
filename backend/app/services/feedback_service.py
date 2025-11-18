@@ -87,12 +87,15 @@ class FeedbackService:
         existing_feedback = application.get("stages", {}).get(stage_feedback_field)
         
         if existing_feedback:
-            # This is an edit - validate edit window and edit count
-            if not await self.can_edit_feedback(application_id, stage_number, submitted_by):
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Edit window expired or maximum edits reached"
-                )
+            # This is an edit
+            # HR and Admin can edit without restrictions
+            # Team members must be within edit window and edit count
+            if user_role not in ["hr", "admin"]:
+                if not await self.can_edit_feedback(application_id, stage_number, submitted_by):
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="Edit window expired or maximum edits reached"
+                    )
             
             # Increment edit count
             edit_count = existing_feedback.get("edit_count", 0) + 1
@@ -232,9 +235,13 @@ class FeedbackService:
         feedback["stage_number"] = stage_number
         feedback["application_id"] = application_id
         
-        # Check if user can edit (only for team members who submitted)
+        # Check if user can edit
+        # HR and Admin can always edit any feedback
+        # Team members can edit their own feedback within restrictions
         can_edit = False
-        if user_role != UserRole.ADMIN.value and assigned_to == user_id:
+        if user_role in [UserRole.ADMIN.value, UserRole.HR.value]:
+            can_edit = True
+        elif assigned_to == user_id:
             can_edit = await self.can_edit_feedback(application_id, stage_number, user_id)
         
         feedback["can_edit"] = can_edit
@@ -249,6 +256,8 @@ class FeedbackService:
     ) -> bool:
         """
         Check if a user can edit feedback within the edit window.
+        HR and Admin users can always edit any feedback.
+        Team members can edit their own feedback within time and count restrictions.
         
         Args:
             application_id: ID of the application
@@ -259,6 +268,11 @@ class FeedbackService:
             bool: True if user can edit, False otherwise
         """
         try:
+            # Check if user is HR or Admin - they can always edit
+            user = await self.db.users.find_one({"_id": ObjectId(user_id)})
+            if user and user.get("role") in ["hr", "admin"]:
+                return True
+            
             application = await self.db.applications.find_one({"_id": ObjectId(application_id)})
             if not application:
                 return False

@@ -73,44 +73,38 @@ async def submit_stage1_feedback(
     return await interview_service.submit_stage1_feedback(application_id, feedback, current_user.id)
 
 
-# Stage 2: Practical Lab Test
+# Stage 2: HR Telephonic Interview
 @router.post("/applications/{application_id}/stage2", response_model=ApplicationResponse)
 async def submit_stage2_feedback(
+    application_id: str,
+    feedback: HRScreening,
+    current_user: UserResponse = Depends(get_current_active_user)
+):
+    """Submit HR Telephonic Interview feedback."""
+    interview_service = InterviewService()
+    return await interview_service.submit_stage2_feedback(application_id, feedback, current_user.id)
+
+
+# Stage 3: Practical Lab Test
+@router.post("/applications/{application_id}/stage3", response_model=ApplicationResponse)
+async def submit_stage3_feedback(
     application_id: str,
     feedback: PracticalLabTest,
     current_user: UserResponse = Depends(get_current_active_user)
 ):
     """Submit Practical Lab Test feedback."""
     interview_service = InterviewService()
-    return await interview_service.submit_stage2_feedback(application_id, feedback, current_user.id)
+    return await interview_service.submit_stage3_feedback(application_id, feedback, current_user.id)
 
 
-# Stage 3: Technical Interview
-@router.post("/applications/{application_id}/stage3", response_model=ApplicationResponse)
-async def submit_stage3_feedback(
+# Stage 4: Technical Interview
+@router.post("/applications/{application_id}/stage4", response_model=ApplicationResponse)
+async def submit_stage4_feedback(
     application_id: str,
     feedback: TechnicalInterview,
     current_user: UserResponse = Depends(get_current_active_user)
 ):
     """Submit Technical Interview feedback."""
-    interview_service = InterviewService()
-    return await interview_service.submit_stage3_feedback(application_id, feedback, current_user.id)
-
-
-# Stage 4: HR Round
-@router.post("/applications/{application_id}/stage4", response_model=ApplicationResponse)
-async def submit_stage4_feedback(
-    application_id: str,
-    feedback: HRRound,
-    current_user: UserResponse = Depends(get_current_active_user)
-):
-    """Submit HR Round feedback."""
-    if current_user.role not in [UserRole.HR, UserRole.ADMIN]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only HR and Admin users can submit HR round feedback"
-        )
-    
     interview_service = InterviewService()
     return await interview_service.submit_stage4_feedback(application_id, feedback, current_user.id)
 
@@ -127,30 +121,36 @@ async def submit_stage5_feedback(
     return await interview_service.submit_stage5_feedback(application_id, feedback, current_user.id)
 
 
-# Stage 6: CEO Interview
+# Stage 6: HR Head Round
 @router.post("/applications/{application_id}/stage6", response_model=ApplicationResponse)
 async def submit_stage6_feedback(
     application_id: str,
-    feedback: CEOInterview,
+    feedback: HRRound,
     current_user: UserResponse = Depends(get_current_active_user)
 ):
-    """Submit CEO Interview feedback."""
+    """Submit HR Head Round feedback."""
+    if current_user.role not in [UserRole.HR, UserRole.ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HR and Admin users can submit HR Head round feedback"
+        )
+    
     interview_service = InterviewService()
     return await interview_service.submit_stage6_feedback(application_id, feedback, current_user.id)
 
 
-# Stage 7: Final Recommendation & Offer
+# Stage 7: CEO Round
 @router.post("/applications/{application_id}/stage7", response_model=ApplicationResponse)
 async def submit_stage7_feedback(
     application_id: str,
-    feedback: FinalRecommendationOffer,
+    feedback: CEOInterview,
     current_user: UserResponse = Depends(get_current_active_user)
 ):
-    """Submit Final Recommendation & Offer feedback."""
-    if current_user.role not in [UserRole.HR, UserRole.ADMIN]:
+    """Submit CEO Round feedback."""
+    if current_user.role not in [UserRole.HR, UserRole.ADMIN, UserRole.CEO]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only HR and Admin users can submit final recommendation feedback"
+            detail="Only HR, Admin, and CEO users can submit CEO round feedback"
         )
     
     interview_service = InterviewService()

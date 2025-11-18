@@ -1,4 +1,6 @@
-import { X } from 'lucide-react';
+import { X, Edit } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const FeedbackViewModal = ({ 
   isOpen, 
@@ -6,9 +8,20 @@ const FeedbackViewModal = ({
   feedback, 
   stageNumber, 
   stageName,
-  submitterName 
+  submitterName,
+  applicationId
 }) => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
   if (!isOpen || !feedback) return null;
+
+  const canEdit = user?.role === 'admin' || user?.role === 'hr';
+
+  const handleEdit = () => {
+    onClose();
+    navigate(`/app/applications/${applicationId}/feedback/${stageNumber}`);
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -106,14 +119,23 @@ const FeedbackViewModal = ({
           </div>
         </div>
         
-        {/* Close Button */}
-        <div className="mt-6 flex justify-end">
+        {/* Action Buttons */}
+        <div className="mt-6 flex justify-end gap-3">
           <button
             onClick={onClose}
             className="btn-secondary"
           >
             Close
           </button>
+          {canEdit && (
+            <button
+              onClick={handleEdit}
+              className="btn-primary inline-flex items-center"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Feedback
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -191,15 +191,26 @@ class InterviewService:
     async def submit_stage2_feedback(
         self, 
         application_id: str, 
+        feedback: HRScreening, 
+        user_id: str
+    ) -> ApplicationResponse:
+        """Submit HR Telephonic Interview feedback."""
+        return await self._submit_stage_feedback(
+            application_id, 2, feedback.dict(), user_id, "stage2_hr_telephonic"
+        )
+
+    async def submit_stage3_feedback(
+        self, 
+        application_id: str, 
         feedback: PracticalLabTest, 
         user_id: str
     ) -> ApplicationResponse:
         """Submit Practical Lab Test feedback."""
         return await self._submit_stage_feedback(
-            application_id, 2, feedback.dict(), user_id, "stage2_practical_lab"
+            application_id, 3, feedback.dict(), user_id, "stage3_practical_lab"
         )
 
-    async def submit_stage3_feedback(
+    async def submit_stage4_feedback(
         self, 
         application_id: str, 
         feedback: TechnicalInterview, 
@@ -207,18 +218,7 @@ class InterviewService:
     ) -> ApplicationResponse:
         """Submit Technical Interview feedback."""
         return await self._submit_stage_feedback(
-            application_id, 3, feedback.dict(), user_id, "stage3_technical_interview"
-        )
-
-    async def submit_stage4_feedback(
-        self, 
-        application_id: str, 
-        feedback: HRRound, 
-        user_id: str
-    ) -> ApplicationResponse:
-        """Submit HR Round feedback."""
-        return await self._submit_stage_feedback(
-            application_id, 4, feedback.dict(), user_id, "stage4_hr_round"
+            application_id, 4, feedback.dict(), user_id, "stage4_technical_interview"
         )
 
     async def submit_stage5_feedback(
@@ -235,30 +235,30 @@ class InterviewService:
     async def submit_stage6_feedback(
         self, 
         application_id: str, 
-        feedback: CEOInterview, 
+        feedback: HRRound, 
         user_id: str
     ) -> ApplicationResponse:
-        """Submit CEO Interview feedback."""
+        """Submit HR Head Round feedback."""
         return await self._submit_stage_feedback(
-            application_id, 6, feedback.dict(), user_id, "stage6_ceo_interview"
+            application_id, 6, feedback.dict(), user_id, "stage6_hr_head_round"
         )
 
     async def submit_stage7_feedback(
         self, 
         application_id: str, 
-        feedback: FinalRecommendationOffer, 
+        feedback: CEOInterview, 
         user_id: str
     ) -> ApplicationResponse:
-        """Submit Final Recommendation & Offer feedback."""
+        """Submit CEO Round feedback."""
         feedback_dict = feedback.dict()
         feedback_dict["completed_at"] = datetime.utcnow()
         feedback_dict["submitted_by"] = user_id  # Track who submitted for blind feedback
         
-        # Update application with final recommendation
+        # Update application with CEO round feedback
         result = await self.db.applications.update_one(
             {"_id": ObjectId(application_id)},
             {"$set": {
-                "stages.stage7_final_recommendation": feedback_dict,
+                "stages.stage7_ceo_round": feedback_dict,
                 "status": "completed",
                 "updated_at": datetime.utcnow()
             }}
@@ -476,11 +476,11 @@ class InterviewService:
         """Get the field name for a stage."""
         stage_fields = {
             1: "hr_screening",
-            2: "practical_lab",
-            3: "technical_interview",
-            4: "hr_round",
+            2: "hr_telephonic",
+            3: "practical_lab",
+            4: "technical_interview",
             5: "bu_lead_interview",
-            6: "ceo_interview",
-            7: "final_recommendation"
+            6: "hr_head_round",
+            7: "ceo_round"
         }
         return stage_fields.get(stage_number, "")

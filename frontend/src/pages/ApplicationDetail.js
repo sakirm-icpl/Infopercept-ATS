@@ -637,6 +637,7 @@ const ApplicationDetail = () => {
         stageNumber={selectedFeedback?.stageNumber}
         stageName={selectedFeedback?.stageNumber ? getStageName(selectedFeedback.stageNumber) : ''}
         submitterName={selectedFeedback?.feedback?.submitted_by ? getAssigneeName(selectedFeedback.feedback.submitted_by) : 'Unknown'}
+        applicationId={id}
       />
 
       {/* Assignment Modal */}
