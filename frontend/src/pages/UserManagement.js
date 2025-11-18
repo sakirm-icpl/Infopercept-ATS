@@ -5,6 +5,10 @@ import { Search, Filter, Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
 
 const UserManagement = () => {
   const { user: currentUser } = useAuth();
+  const isAdmin = currentUser && (
+    (typeof currentUser.role === 'string' && currentUser.role.toLowerCase() === 'admin') ||
+    (currentUser.role && typeof currentUser.role === 'object' && (currentUser.role.value || '').toLowerCase() === 'admin')
+  );
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,7 +31,9 @@ const UserManagement = () => {
     username: '',
     email: '',
     mobile: '',
-    role: 'candidate'
+    role: 'candidate',
+    password: '',
+    confirmPassword: ''
   });
   
   // Filters
@@ -124,8 +130,27 @@ const UserManagement = () => {
     
     try {
       setError('');
-      
-      await userService.updateUser(editingUser.id, editFormData);
+      // Prepare payload: only send password if provided and valid
+      const payload = {
+        username: editFormData.username,
+        email: editFormData.email,
+        mobile: editFormData.mobile,
+        role: editFormData.role
+      };
+
+      if (editFormData.password && editFormData.password.length > 0) {
+        if (editFormData.password !== editFormData.confirmPassword) {
+          setError('Passwords do not match');
+          return;
+        }
+        if (editFormData.password.length < 6) {
+          setError('Password must be at least 6 characters');
+          return;
+        }
+        payload.password = editFormData.password;
+      }
+
+      await userService.updateUser(editingUser.id, payload);
       
       setSuccessMessage('User updated successfully!');
       setEditingUser(null);
@@ -159,7 +184,9 @@ const UserManagement = () => {
       username: user.username,
       email: user.email,
       mobile: user.mobile,
-      role: user.role
+      role: user.role,
+      password: '',
+      confirmPassword: ''
     });
   };
 
@@ -367,6 +394,36 @@ const UserManagement = () => {
                               ))}
                             </select>
                           </div>
+                          {isAdmin && (
+                            <>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Password
+                                </label>
+                                <input
+                                  type="password"
+                                  name="password"
+                                  className="form-input w-full"
+                                  value={editFormData.password}
+                                  onChange={handleEditFormChange}
+                                  placeholder="Leave blank to keep existing password"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Confirm Password
+                                </label>
+                                <input
+                                  type="password"
+                                  name="confirmPassword"
+                                  className="form-input w-full"
+                                  value={editFormData.confirmPassword}
+                                  onChange={handleEditFormChange}
+                                  placeholder="Confirm new password"
+                                />
+                              </div>
+                            </>
+                          )}
                         </div>
                         
                         <div className="flex items-center space-x-4 pt-4">

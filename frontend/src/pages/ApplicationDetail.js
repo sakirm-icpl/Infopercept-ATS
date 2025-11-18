@@ -618,7 +618,7 @@ const ApplicationDetail = () => {
               </div>
             </div>
             <a
-              href={`http://localhost:8000/uploads/${application.resume_filename}`}
+              href={`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/uploads/${application.resume_filename}`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary"

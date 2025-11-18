@@ -1,5 +1,5 @@
 from typing import List, Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, date, time
 from bson import ObjectId
 from fastapi import HTTPException, status
 from ..database import get_database
@@ -40,6 +40,14 @@ class InterviewService:
                 detail="Invalid team member assigned"
             )
         
+        # Normalize deadline: accept date or datetime from request, convert date -> datetime at 00:00
+        deadline = None
+        if assignment.deadline:
+            if isinstance(assignment.deadline, date) and not isinstance(assignment.deadline, datetime):
+                deadline = datetime.combine(assignment.deadline, time.min)
+            else:
+                deadline = assignment.deadline
+
         # Create stage assignment
         assignment_doc = {
             "application_id": application_id,
@@ -48,7 +56,7 @@ class InterviewService:
             "assigned_by": assigned_by,
             "assigned_at": datetime.utcnow(),
             "notes": assignment.notes,
-            "deadline": assignment.deadline,
+            "deadline": deadline,
             "status": "pending"
         }
         
@@ -67,7 +75,7 @@ class InterviewService:
                     "assigned_by": assigned_by,
                     "assigned_at": datetime.utcnow(),
                     "notes": assignment.notes,
-                    "deadline": assignment.deadline,
+                    "deadline": deadline,
                     "status": "pending"
                 }}
             )
@@ -87,8 +95,8 @@ class InterviewService:
             status_field: "assigned",
             "updated_at": datetime.utcnow()
         }
-        if assignment.deadline:
-            update_fields[deadline_field] = assignment.deadline
+        if deadline:
+            update_fields[deadline_field] = deadline
         
         await self.db.applications.update_one(
             {"_id": ObjectId(application_id)},

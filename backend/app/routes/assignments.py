@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import List, Optional
-from datetime import datetime
+from typing import List, Optional, Union
+from datetime import datetime, date
 from ..models.application import StageAssignmentRequestModel, StageAssignmentModel
 from ..models.user import UserResponse, UserRole
 from ..services.assignment_service import AssignmentService
@@ -168,7 +168,7 @@ class BulkAssignmentRequest(BaseModel):
     """Request model for bulk assigning multiple stages."""
     stage_numbers: List[int]
     assigned_to: str
-    deadline: Optional[datetime] = None
+    deadline: Optional[Union[datetime, date]] = None
     notes: Optional[str] = Field(None, max_length=500)
 
 

@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List, Literal
+from typing import Optional, List, Literal, Union
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, date
 from bson import ObjectId
 
 
@@ -67,7 +67,7 @@ class StageAssignmentModel(BaseModel):
     assigned_by: str  # Admin User ID
     assigned_at: datetime = Field(default_factory=datetime.utcnow)
     status: Literal["assigned", "in_progress", "completed"] = "assigned"
-    deadline: Optional[datetime] = None
+    deadline: Optional[Union[datetime, date]] = None
     notes: Optional[str] = Field(None, max_length=500)
     reassigned_from: Optional[str] = None  # User ID if reassigned
     reassignment_reason: Optional[str] = None
@@ -78,7 +78,7 @@ class StageAssignmentRequestModel(BaseModel):
     """Request model for assigning a stage to a team member"""
     stage_number: int = Field(..., ge=1, le=7)
     assigned_to: str  # User ID
-    deadline: Optional[datetime] = None
+    deadline: Optional[Union[datetime, date]] = None
     notes: Optional[str] = Field(None, max_length=500)
 
 
@@ -202,13 +202,13 @@ class ApplicationStages(BaseModel):
     stage7_feedback: Optional[StageFeedback] = None
     
     # Stage deadlines for each stage
-    stage1_deadline: Optional[datetime] = None
-    stage2_deadline: Optional[datetime] = None
-    stage3_deadline: Optional[datetime] = None
-    stage4_deadline: Optional[datetime] = None
-    stage5_deadline: Optional[datetime] = None
-    stage6_deadline: Optional[datetime] = None
-    stage7_deadline: Optional[datetime] = None
+    stage1_deadline: Optional[Union[datetime, date]] = None
+    stage2_deadline: Optional[Union[datetime, date]] = None
+    stage3_deadline: Optional[Union[datetime, date]] = None
+    stage4_deadline: Optional[Union[datetime, date]] = None
+    stage5_deadline: Optional[Union[datetime, date]] = None
+    stage6_deadline: Optional[Union[datetime, date]] = None
+    stage7_deadline: Optional[Union[datetime, date]] = None
 
 
 # Application Base
@@ -278,14 +278,14 @@ class StageAssignment(BaseModel):
     assigned_to: str  # User ID of team member
     assigned_by: str  # User ID of HR who made the assignment
     assigned_at: datetime = Field(default_factory=datetime.utcnow)
-    deadline: Optional[datetime] = None
+    deadline: Optional[Union[datetime, date]] = None
     notes: Optional[str] = Field(None, max_length=500)
 
 
 class StageAssignmentRequest(BaseModel):
     stage_number: int = Field(..., ge=1, le=7)  # Updated to 7 stages
     assigned_to: str  # User ID of team member
-    deadline: Optional[datetime] = None
+    deadline: Optional[Union[datetime, date]] = None
     notes: Optional[str] = Field(None, max_length=500)
 
 
@@ -298,4 +298,4 @@ class StageAssignmentResponse(BaseModel):
     assigned_at: datetime
     notes: Optional[str] = None
     status: str  # pending, completed, forwarded
-    deadline: Optional[datetime] = None
+    deadline: Optional[Union[datetime, date]] = None

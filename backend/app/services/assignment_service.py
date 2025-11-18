@@ -1,5 +1,5 @@
-from typing import Optional, List
-from datetime import datetime
+from typing import Optional, List, Union
+from datetime import datetime, date, time
 from bson import ObjectId
 from ..database import get_database
 from ..models.application import StageAssignmentModel, StageAssignmentRequestModel
@@ -21,7 +21,7 @@ class AssignmentService:
         stage_number: int,
         assigned_to: str,
         assigned_by: str,
-        deadline: Optional[datetime] = None,
+        deadline: Optional[Union[datetime, date]] = None,
         notes: Optional[str] = None
     ) -> StageAssignmentModel:
         """
@@ -106,6 +106,14 @@ class AssignmentService:
                 detail=f"Stage {stage_number} is already assigned to another team member"
             )
         
+        # Normalize deadline if date-only provided -> convert to datetime at midnight
+        normalized_deadline = None
+        if deadline:
+            if isinstance(deadline, date) and not isinstance(deadline, datetime):
+                normalized_deadline = datetime.combine(deadline, time.min)
+            else:
+                normalized_deadline = deadline
+
         # Create assignment record in audit trail
         assignment_data = StageAssignmentModel(
             application_id=application_id,
@@ -114,7 +122,7 @@ class AssignmentService:
             assigned_by=assigned_by,
             assigned_at=datetime.utcnow(),
             status="assigned",
-            deadline=deadline,
+            deadline=normalized_deadline,
             notes=notes
         )
         
@@ -130,9 +138,9 @@ class AssignmentService:
         }
         
         # Add deadline to application stages if provided
-        if deadline:
+        if normalized_deadline:
             stage_deadline_field = f"stage{stage_number}_deadline"
-            update_fields[f"stages.{stage_deadline_field}"] = deadline
+            update_fields[f"stages.{stage_deadline_field}"] = normalized_deadline
         
         await self.db.applications.update_one(
             {"_id": ObjectId(application_id)},
@@ -473,7 +481,7 @@ class AssignmentService:
         stage_numbers: List[int],
         assigned_to: str,
         assigned_by: str,
-        deadline: Optional[datetime] = None,
+        deadline: Optional[Union[datetime, date]] = None,
         notes: Optional[str] = None
     ) -> dict:
         """
@@ -515,6 +523,14 @@ class AssignmentService:
                 detail="At least one stage must be selected"
             )
         
+        # Normalize deadline for bulk assignment
+        normalized_deadline = None
+        if deadline:
+            if isinstance(deadline, date) and not isinstance(deadline, datetime):
+                normalized_deadline = datetime.combine(deadline, time.min)
+            else:
+                normalized_deadline = deadline
+
         for stage_number in stage_numbers:
             if stage_number < 1 or stage_number > 7:
                 raise HTTPException(
@@ -581,7 +597,7 @@ class AssignmentService:
                     assigned_by=assigned_by,
                     assigned_at=datetime.utcnow(),
                     status="assigned",
-                    deadline=deadline,
+                    deadline=normalized_deadline,
                     notes=notes
                 )
                 
@@ -600,9 +616,9 @@ class AssignmentService:
                 }
                 
                 # Add deadline to application stages if provided
-                if deadline:
+                if normalized_deadline:
                     stage_deadline_field = f"stage{stage_number}_deadline"
-                    update_fields[f"stages.{stage_deadline_field}"] = deadline
+                    update_fields[f"stages.{stage_deadline_field}"] = normalized_deadline
                 
                 await self.db.applications.update_one(
                     {"_id": ObjectId(application_id)},
