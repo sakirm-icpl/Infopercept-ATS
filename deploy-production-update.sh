@@ -170,7 +170,18 @@ echo ""
 ################################################################################
 
 print_info "Starting updated containers..."
-$DOCKER_COMPOSE up -d backend frontend mongo-express
+
+# Start backend first
+print_info "Starting backend..."
+$DOCKER_COMPOSE up -d --no-deps backend
+
+# Start frontend
+print_info "Starting frontend..."
+$DOCKER_COMPOSE up -d --no-deps frontend
+
+# Start mongo-express
+print_info "Starting mongo-express..."
+$DOCKER_COMPOSE up -d --no-deps mongo-express
 
 print_success "Containers started"
 echo ""
