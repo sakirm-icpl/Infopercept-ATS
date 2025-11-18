@@ -4,7 +4,7 @@ from datetime import datetime
 from ..models.application import StageAssignmentRequestModel, StageAssignmentModel
 from ..models.user import UserResponse, UserRole
 from ..services.assignment_service import AssignmentService
-from ..auth.dependencies import get_current_active_user, require_admin, verify_stage_assignment
+from ..auth.dependencies import get_current_active_user, require_admin, require_hr_or_admin, verify_stage_assignment
 from ..database import get_database
 from pydantic import BaseModel, Field
 
@@ -22,7 +22,7 @@ class ReassignmentRequest(BaseModel):
 async def assign_stage(
     application_id: str,
     assignment_request: StageAssignmentRequestModel,
-    current_user: UserResponse = Depends(require_admin)
+    current_user: UserResponse = Depends(require_hr_or_admin)
 ):
     """
     Assign a stage to a team member (admin only).
@@ -99,7 +99,7 @@ async def get_stage_assignments(
 async def reassign_stage(
     application_id: str,
     reassignment_request: ReassignmentRequest,
-    current_user: UserResponse = Depends(require_admin)
+    current_user: UserResponse = Depends(require_hr_or_admin)
 ):
     """
     Reassign a stage to a different team member (admin only).
@@ -176,7 +176,7 @@ class BulkAssignmentRequest(BaseModel):
 async def bulk_assign_stages(
     application_id: str,
     bulk_assignment: BulkAssignmentRequest,
-    current_user: UserResponse = Depends(require_admin)
+    current_user: UserResponse = Depends(require_hr_or_admin)
 ):
     """
     Assign multiple stages to the same team member at once (admin only).

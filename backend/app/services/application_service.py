@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Dict
 from datetime import datetime
 from bson import ObjectId
 from ..database import get_database
@@ -11,6 +11,7 @@ from ..models.application import (
 )
 from ..models.user import UserRole
 from fastapi import HTTPException, status
+from fastapi.encoders import jsonable_encoder
 
 
 class ApplicationService:
@@ -395,6 +396,132 @@ class ApplicationService:
             )
         
         return await self.get_application_by_id(application_id)
+
+    async def get_feedback_export_data(self, application_id: str) -> dict:
+        """Build a structured payload for exporting application feedback."""
+        application = await self.get_application_by_id(application_id)
+        if not application:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Application not found"
+            )
+        
+        stages_data = application.stages.model_dump() if application.stages else {}
+        stage_names = {
+            1: "Resume Screening",
+            2: "HR Telephonic Interview",
+            3: "Practical Lab Test",
+            4: "Technical Interview",
+            5: "BU Lead Round",
+            6: "HR Head Round",
+            7: "CEO Round"
+        }
+        stage_field_overrides = {
+            1: "stage1_hr_screening",
+            2: "stage2_practical_lab",
+            3: "stage3_technical_interview",
+            4: "stage4_hr_round",
+            5: "stage5_bu_lead_interview",
+            6: "stage6_ceo_interview",
+            7: "stage7_final_recommendation"
+        }
+        
+        from ..services.user_service import UserService  # Local import to avoid circular dependency
+        user_service = UserService()
+        user_cache: Dict[str, Optional["UserResponse"]] = {}
+        
+        async def resolve_user(user_id: Optional[str]):
+            if not user_id:
+                return None
+            if user_id not in user_cache:
+                user_cache[user_id] = await user_service.get_user_by_id(user_id)
+            return user_cache[user_id]
+        
+        stage_entries = []
+        for stage_number in range(1, 8):
+            assigned_to = stages_data.get(f"stage{stage_number}_assigned_to")
+            stage_status = stages_data.get(f"stage{stage_number}_status", "pending")
+            deadline = stages_data.get(f"stage{stage_number}_deadline")
+            
+            feedback_data = stages_data.get(f"stage{stage_number}_feedback")
+            if not feedback_data:
+                alt_field = stage_field_overrides.get(stage_number)
+                if alt_field:
+                    feedback_data = stages_data.get(alt_field)
+            feedback_dict = jsonable_encoder(feedback_data) if feedback_data else None
+            
+            decision = ""
+            rating = ""
+            comments = ""
+            submitted_by = None
+            submitted_at = None
+            
+            if feedback_dict:
+                decision = (
+                    feedback_dict.get("approval_status")
+                    or feedback_dict.get("outcome")
+                    or feedback_dict.get("status")
+                    or ""
+                )
+                rating = (
+                    feedback_dict.get("performance_rating")
+                    or feedback_dict.get("scale")
+                    or feedback_dict.get("cumulative_scale")
+                    or ""
+                )
+                comments = (
+                    feedback_dict.get("comments")
+                    or feedback_dict.get("panel_feedback")
+                    or feedback_dict.get("feedback")
+                    or feedback_dict.get("reviewer_comments")
+                    or feedback_dict.get("suggestions")
+                    or feedback_dict.get("panel_comments")
+                    or ""
+                )
+                submitted_by = feedback_dict.get("submitted_by")
+                submitted_at = feedback_dict.get("submitted_at") or feedback_dict.get("completed_at")
+            
+            assignee = await resolve_user(assigned_to)
+            submitter = await resolve_user(submitted_by) if submitted_by else None
+            
+            stage_entries.append({
+                "stage_number": stage_number,
+                "stage_name": stage_names.get(stage_number, f"Stage {stage_number}"),
+                "status": stage_status,
+                "assigned_to": assigned_to,
+                "assigned_to_name": assignee.username if assignee else None,
+                "assigned_to_email": assignee.email if assignee else None,
+                "deadline": deadline.isoformat() if isinstance(deadline, datetime) else deadline,
+                "feedback": {
+                    "decision": decision,
+                    "rating": rating,
+                    "comments": comments,
+                    "raw": feedback_dict,
+                    "submitted_by": submitted_by,
+                    "submitted_by_name": submitter.username if submitter else None,
+                    "submitted_by_email": submitter.email if submitter else None,
+                    "submitted_at": submitted_at
+                }
+            })
+        
+        application_info = {
+            "id": application.id,
+            "name": application.name,
+            "email": application.email,
+            "mobile": application.mobile,
+            "job_id": application.job_id,
+            "job_title": application.job_title,
+            "status": application.status,
+            "current_stage": application.current_stage,
+            "date_of_application": application.date_of_application.isoformat() if isinstance(application.date_of_application, datetime) else application.date_of_application,
+            "created_at": application.created_at.isoformat() if isinstance(application.created_at, datetime) else application.created_at,
+            "updated_at": application.updated_at.isoformat() if isinstance(application.updated_at, datetime) else application.updated_at,
+        }
+        
+        return {
+            "application": application_info,
+            "stages": stage_entries
+        }
 
     async def get_all_interviewers_for_assignment(self) -> List[dict]:
         """Get all users available for assignment (HR, Admin, Team Members - excluding candidates)."""

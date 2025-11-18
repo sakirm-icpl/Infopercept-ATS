@@ -54,6 +54,10 @@ const Layout = () => {
       { name: 'My Assignments', href: '/app/my-assignments', icon: ClipboardList },
       { name: 'All Applications', href: '/app/applications', icon: FileText }
     ] : []),
+    ...(user?.role === 'ceo' ? [
+      { name: 'Applications', href: '/app/applications', icon: ClipboardList },
+      { name: 'Feedback Statistics', href: '/app/feedback-statistics', icon: BarChart3 }
+    ] : []),
   ];
 
   return (

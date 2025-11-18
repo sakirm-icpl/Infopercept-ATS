@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from ..models.user import UserResponse, UserUpdate, UserCreate, UserRole
 from ..services.user_service import UserService
-from ..auth.dependencies import require_admin, require_hr_or_admin
+from ..auth.dependencies import require_admin, require_hr_or_admin, require_hr_admin_or_ceo
 
 router = APIRouter(prefix="/api/users", tags=["Users"])
 
@@ -45,7 +45,7 @@ async def get_candidates(current_user: UserResponse = Depends(require_hr_or_admi
 
 
 @router.get("/assignment-users", response_model=List[UserResponse])
-async def get_assignment_users(current_user: UserResponse = Depends(require_hr_or_admin)):
+async def get_assignment_users(current_user: UserResponse = Depends(require_hr_admin_or_ceo)):
     """Get all users available for assignment (HR, Admin, Team Members - excluding candidates)."""
     print(f"get_assignment_users called by user: {current_user.email} with role: {current_user.role}")
     user_service = UserService()

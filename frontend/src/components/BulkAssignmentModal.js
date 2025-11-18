@@ -368,9 +368,10 @@ const BulkAssignmentModal = ({
               Deadline (Optional)
             </label>
             <input
-              type="datetime-local"
+              type="date"
               value={deadline}
               onChange={(e) => setDeadline(e.target.value)}
+              min={new Date().toISOString().split('T')[0]}
               className="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={loading}
             />

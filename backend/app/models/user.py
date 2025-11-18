@@ -10,6 +10,7 @@ class UserRole(str, Enum):
     HR = "hr"
     TEAM_MEMBER = "team_member"
     REQUESTER = "requester"  # New role for job requesters
+    CEO = "ceo"  # CEO role with read-only access to all feedbacks
     CANDIDATE = "candidate"
 
 

@@ -28,8 +28,8 @@ const ApplicationDetail = () => {
 
   useEffect(() => {
     fetchApplication();
-    if (user?.role === 'hr' || user?.role === 'admin') {
-      console.log('User has HR or Admin role, fetching team members...');
+    if (user?.role === 'hr' || user?.role === 'admin' || user?.role === 'ceo') {
+      console.log('User has HR, Admin, or CEO role, fetching team members...');
       fetchTeamMembers();
     }
   }, [id, user]);
@@ -157,12 +157,10 @@ const ApplicationDetail = () => {
   const formatDeadline = (deadline) => {
     if (!deadline) return null;
     const date = new Date(deadline);
-    return date.toLocaleString('en-US', {
+    return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric'
     });
   };
 
@@ -210,6 +208,18 @@ const ApplicationDetail = () => {
     } catch (error) {
       console.error('Error rejecting stage:', error);
       alert('Error rejecting stage. Please try again.');
+    }
+  };
+
+  const handleExportFeedback = async () => {
+    if (!application) return;
+    const exportCsv = window.confirm('Click OK to download CSV or Cancel to download JSON.');
+    const format = exportCsv ? 'csv' : 'json';
+    try {
+      await applicationService.exportFeedback(application.id, format, application.name);
+    } catch (error) {
+      console.error('Error exporting feedback:', error);
+      alert('Failed to export feedback. Please try again.');
     }
   };
 
@@ -264,8 +274,19 @@ const ApplicationDetail = () => {
             </button>
           )}
           
-          {/* Bulk Assignment Button (Admin only) */}
-          {user?.role === 'admin' && getAvailableStagesForBulkAssignment().length > 1 && (
+          {/* Export Feedback Button (Admin and HR) */}
+          {(user?.role === 'admin' || user?.role === 'hr' || user?.role === 'ceo') && (
+            <button
+              onClick={() => handleExportFeedback()}
+              className="btn-secondary inline-flex items-center"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Export Feedback
+            </button>
+          )}
+          
+          {/* Bulk Assignment Button (Admin and HR) */}
+          {(user?.role === 'admin' || user?.role === 'hr') && getAvailableStagesForBulkAssignment().length > 1 && (
             <button
               onClick={() => setShowBulkAssignmentModal(true)}
               className="btn-primary inline-flex items-center"
@@ -275,8 +296,8 @@ const ApplicationDetail = () => {
             </button>
           )}
           
-          {/* Single Stage Assignment Button (Admin only) */}
-          {user?.role === 'admin' && (
+          {/* Single Stage Assignment Button (Admin and HR) */}
+          {(user?.role === 'admin' || user?.role === 'hr') && (
             <button
               onClick={() => {
                 console.log('Opening assignment modal');
@@ -376,8 +397,8 @@ const ApplicationDetail = () => {
         </div>
       </div>
 
-      {/* Feedback Summary - Only visible to Admin/HR */}
-      {(user?.role === 'hr' || user?.role === 'admin') && (
+      {/* Feedback Summary - Visible to Admin/HR/CEO */}
+      {(user?.role === 'hr' || user?.role === 'admin' || user?.role === 'ceo') && (
         <FeedbackSummary application={application} />
       )}
 
@@ -439,8 +460,8 @@ const ApplicationDetail = () => {
                     </div>
                   </div>
                   
-                  {/* Action buttons for Admin only */}
-                  {user?.role === 'admin' && status === 'pending' && (
+                  {/* Action buttons for Admin/HR */}
+                  {(user?.role === 'admin' || user?.role === 'hr') && status === 'pending' && (
                     <button
                       onClick={() => {
                         setSelectedStage(stageNumber);
@@ -550,7 +571,7 @@ const ApplicationDetail = () => {
                 )}
                 
                 {/* Feedback Summary for Completed Stages */}
-                {feedback && status === 'completed' && (user?.role === 'hr' || user?.role === 'admin') && (
+                {feedback && status === 'completed' && (user?.role === 'hr' || user?.role === 'admin' || user?.role === 'ceo') && (
                   <div className="ml-12 mt-3 p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div className="flex-1 grid grid-cols-2 gap-4">

@@ -278,12 +278,14 @@ class StageAssignment(BaseModel):
     assigned_to: str  # User ID of team member
     assigned_by: str  # User ID of HR who made the assignment
     assigned_at: datetime = Field(default_factory=datetime.utcnow)
+    deadline: Optional[datetime] = None
     notes: Optional[str] = Field(None, max_length=500)
 
 
 class StageAssignmentRequest(BaseModel):
     stage_number: int = Field(..., ge=1, le=7)  # Updated to 7 stages
     assigned_to: str  # User ID of team member
+    deadline: Optional[datetime] = None
     notes: Optional[str] = Field(None, max_length=500)
 
 
@@ -296,3 +298,4 @@ class StageAssignmentResponse(BaseModel):
     assigned_at: datetime
     notes: Optional[str] = None
     status: str  # pending, completed, forwarded
+    deadline: Optional[datetime] = None

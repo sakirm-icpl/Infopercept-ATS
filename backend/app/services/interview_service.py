@@ -48,6 +48,7 @@ class InterviewService:
             "assigned_by": assigned_by,
             "assigned_at": datetime.utcnow(),
             "notes": assignment.notes,
+            "deadline": assignment.deadline,
             "status": "pending"
         }
         
@@ -66,6 +67,7 @@ class InterviewService:
                     "assigned_by": assigned_by,
                     "assigned_at": datetime.utcnow(),
                     "notes": assignment.notes,
+                    "deadline": assignment.deadline,
                     "status": "pending"
                 }}
             )
@@ -78,14 +80,19 @@ class InterviewService:
         # Update application stages
         stage_field = f"stage{assignment.stage_number}_assigned_to"
         status_field = f"stage{assignment.stage_number}_status"
+        deadline_field = f"stage{assignment.stage_number}_deadline"
+        
+        update_fields = {
+            stage_field: assignment.assigned_to,
+            status_field: "assigned",
+            "updated_at": datetime.utcnow()
+        }
+        if assignment.deadline:
+            update_fields[deadline_field] = assignment.deadline
         
         await self.db.applications.update_one(
             {"_id": ObjectId(application_id)},
-            {"$set": {
-                stage_field: assignment.assigned_to,
-                status_field: "assigned",
-                "updated_at": datetime.utcnow()
-            }}
+            {"$set": update_fields}
         )
         
         return StageAssignmentResponse(**assignment_doc)
@@ -442,7 +449,7 @@ class InterviewService:
             )
         
         # For Admin and HR, they can see all feedback
-        if user.role in [UserRole.ADMIN, UserRole.HR]:
+        if user.role in [UserRole.ADMIN, UserRole.HR, UserRole.CEO]:
             stage_field = f"stage{stage_number}_{self._get_stage_field_name(stage_number)}"
             return application.get("stages", {}).get(stage_field)
         

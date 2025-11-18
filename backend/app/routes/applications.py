@@ -1,6 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
-from typing import List, Optional
+import csv
+import io
 from datetime import datetime
+from fastapi import APIRouter, Depends, HTTPException, Query, status, UploadFile, File, Form
+from fastapi.responses import Response
+from typing import List, Optional
 from ..models.application import (
     ApplicationCreate, ApplicationResponse, ApplicationListResponse,
     HRScreening, PracticalLabTest, TechnicalInterview, HRRound,
@@ -9,7 +12,14 @@ from ..models.application import (
 )
 from ..models.user import UserResponse, UserRole
 from ..services.application_service import ApplicationService
-from ..auth.dependencies import get_current_active_user, require_candidate, require_hr_or_admin, require_hr_team_or_admin, require_team_member
+from ..auth.dependencies import (
+    get_current_active_user,
+    require_candidate,
+    require_hr_or_admin,
+    require_hr_team_or_admin,
+    require_team_member,
+    require_hr_admin_or_ceo,
+)
 from ..utils.file_upload import save_upload_file
 import json
 
@@ -345,3 +355,69 @@ async def reject_stage(
 
 
 # Team Member Assignment Endpoints
+
+
+@router.get("/{application_id}/feedback/export")
+async def export_application_feedback(
+    application_id: str,
+    format: str = Query("csv", description="Supported formats: csv or json"),
+    current_user: UserResponse = Depends(require_hr_admin_or_ceo)
+):
+    """
+    Export all feedback for a specific application as CSV or JSON.
+    Accessible to Admin, HR, and CEO roles.
+    """
+    export_format = format.lower()
+    if export_format not in {"csv", "json"}:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid format. Supported formats are 'csv' and 'json'."
+        )
+    
+    application_service = ApplicationService()
+    export_data = await application_service.get_feedback_export_data(application_id)
+    
+    if export_format == "json":
+        return export_data
+    
+    # CSV export
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "Stage #",
+        "Stage Name",
+        "Status",
+        "Assigned To",
+        "Assigned Email",
+        "Deadline",
+        "Approval/Outcome",
+        "Rating",
+        "Comments",
+        "Submitted By",
+        "Submitted Email",
+        "Submitted At"
+    ])
+    
+    for stage in export_data["stages"]:
+        writer.writerow([
+            stage["stage_number"],
+            stage["stage_name"],
+            stage["status"],
+            stage.get("assigned_to_name") or stage.get("assigned_to") or "",
+            stage.get("assigned_to_email") or "",
+            stage.get("deadline") or "",
+            stage["feedback"].get("decision") or "",
+            stage["feedback"].get("rating") or "",
+            stage["feedback"].get("comments") or "",
+            stage["feedback"].get("submitted_by_name") or stage["feedback"].get("submitted_by") or "",
+            stage["feedback"].get("submitted_by_email") or "",
+            stage["feedback"].get("submitted_at") or ""
+        ])
+    
+    filename = f"feedback_{export_data['application']['name'].replace(' ', '_')}_{datetime.utcnow().strftime('%Y%m%d')}.csv"
+    
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )

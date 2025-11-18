@@ -84,6 +84,7 @@ require_candidate = require_role(UserRole.CANDIDATE)
 require_hr_or_admin = require_roles([UserRole.HR, UserRole.ADMIN])
 require_hr_team_or_admin = require_roles([UserRole.HR, UserRole.TEAM_MEMBER, UserRole.ADMIN])
 require_team_or_admin = require_roles([UserRole.TEAM_MEMBER, UserRole.ADMIN])
+require_hr_admin_or_ceo = require_roles([UserRole.HR, UserRole.ADMIN, UserRole.CEO])
 
 
 async def verify_stage_assignment(

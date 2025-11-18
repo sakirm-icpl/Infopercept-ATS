@@ -17,7 +17,8 @@ import {
   Eye,
   Target,
   Zap,
-  ClipboardList
+  ClipboardList,
+  BarChart3
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Card from '../components/Card';
@@ -196,6 +197,52 @@ const Dashboard = () => {
               icon: Plus,
               href: '/app/jobs/create',
               color: 'success'
+            }
+          ],
+          recentActivity: []
+        };
+
+      case 'ceo':
+        return {
+          title: 'Executive Dashboard',
+          subtitle: 'Review recruitment progress and feedback health',
+          stats: [
+            {
+              title: 'Active Applications',
+              value: '0',
+              icon: FileText,
+              color: 'primary',
+              change: 'Monitor applications in flight'
+            },
+            {
+              title: 'Approval Rate',
+              value: '0%',
+              icon: TrendingUp,
+              color: 'success',
+              change: 'View insights in Feedback Statistics'
+            },
+            {
+              title: 'Pending Decisions',
+              value: '0',
+              icon: Award,
+              color: 'warning',
+              change: 'Awaiting final recommendations'
+            }
+          ],
+          quickActions: [
+            {
+              title: 'View Applications',
+              description: 'Browse detailed interview feedback',
+              icon: FileText,
+              href: '/app/applications',
+              color: 'primary'
+            },
+            {
+              title: 'Feedback Analytics',
+              description: 'Dive into approval trends',
+              icon: BarChart3,
+              href: '/app/feedback-statistics',
+              color: 'secondary'
             }
           ],
           recentActivity: []

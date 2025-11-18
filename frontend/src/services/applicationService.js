@@ -183,5 +183,40 @@ export const applicationService = {
       console.error('Error fetching feedback statistics:', error);
       throw error;
     }
+  },
+
+  async exportFeedback(applicationId, format = 'csv', candidateName = 'application') {
+    try {
+      const config = format === 'csv' ? { responseType: 'blob' } : {};
+      const response = await apiClient.get(`/api/applications/${applicationId}/feedback/export?format=${format}`, config);
+      const safeName = candidateName?.replace(/\s+/g, '_') || 'application';
+      const date = new Date().toISOString().split('T')[0];
+
+      if (format === 'csv') {
+        const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Feedback_${safeName}_${date}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        const dataStr = JSON.stringify(response.data, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Feedback_${safeName}_${date}.json`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error('Error exporting feedback:', error);
+      throw error;
+    }
   }
 }; 

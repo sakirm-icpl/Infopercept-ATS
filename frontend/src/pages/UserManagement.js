@@ -33,6 +33,14 @@ const UserManagement = () => {
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const roleOptions = [
+    { value: 'admin', label: 'Admin' },
+    { value: 'hr', label: 'HR' },
+    { value: 'team_member', label: 'Team Member' },
+    { value: 'requester', label: 'Requester' },
+    { value: 'ceo', label: 'CEO' },
+    { value: 'candidate', label: 'Candidate' },
+  ];
 
   useEffect(() => {
     loadUsers();
@@ -188,6 +196,7 @@ const UserManagement = () => {
       hr: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'HR' },
       team_member: { bg: 'bg-purple-100', text: 'text-purple-800', label: 'Team Member' },
       requester: { bg: 'bg-indigo-100', text: 'text-indigo-800', label: 'Requester' },
+      ceo: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'CEO' },
       candidate: { bg: 'bg-green-100', text: 'text-green-800', label: 'Candidate' },
     };
     
@@ -273,11 +282,11 @@ const UserManagement = () => {
                 onChange={(e) => setRoleFilter(e.target.value)}
               >
                 <option value="all">All Roles</option>
-                <option value="admin">Admin</option>
-                <option value="hr">HR</option>
-                <option value="team_member">Team Member</option>
-                <option value="requester">Requester</option>
-                <option value="candidate">Candidate</option>
+                {roleOptions.map((role) => (
+                  <option key={role.value} value={role.value}>
+                    {role.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -351,11 +360,11 @@ const UserManagement = () => {
                               required
                             >
                               <option value="">Select Role</option>
-                              <option value="admin">Admin</option>
-                              <option value="hr">HR</option>
-                              <option value="team_member">Team Member</option>
-                              <option value="requester">Requester</option>
-                              <option value="candidate">Candidate</option>
+                              {roleOptions.map((role) => (
+                                <option key={role.value} value={role.value}>
+                                  {role.label}
+                                </option>
+                              ))}
                             </select>
                           </div>
                         </div>
@@ -511,11 +520,11 @@ const UserManagement = () => {
                       onChange={handleFormChange}
                       required
                     >
-                      <option value="admin">Admin</option>
-                      <option value="hr">HR</option>
-                      <option value="team_member">Team Member</option>
-                      <option value="requester">Requester</option>
-                      <option value="candidate">Candidate</option>
+                      {roleOptions.map((role) => (
+                        <option key={role.value} value={role.value}>
+                          {role.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   
@@ -574,6 +583,7 @@ const UserManagement = () => {
                     <li><strong>Admin:</strong> Full system access, user management, can create all other users</li>
                     <li><strong>HR Manager:</strong> Can manage applications, assign interviews, approve/reject feedback</li>
                     <li><strong>Team Member:</strong> Can conduct assigned interviews and submit feedback</li>
+                    <li><strong>CEO:</strong> View all applications, feedback, and analytics for executive oversight</li>
                     <li><strong>Requester:</strong> Can initiate job requests and participate in interviews</li>
                     <li><strong>Candidate:</strong> Can apply for jobs and track application status</li>
                   </ul>

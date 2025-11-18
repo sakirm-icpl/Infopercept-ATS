@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from ..models.application import FeedbackSubmission
 from ..models.user import UserResponse, UserRole
 from ..services.feedback_service import FeedbackService
-from ..auth.dependencies import get_current_active_user, require_hr_or_admin
+from ..auth.dependencies import get_current_active_user, require_hr_or_admin, require_hr_admin_or_ceo
 from ..config.feedback_templates import get_flattened_templates, get_all_templates
 from typing import Optional
 from datetime import datetime
@@ -198,7 +198,7 @@ async def update_stage_status(
 async def get_feedback_statistics(
     start_date: Optional[str] = Query(None, description="Start date filter (YYYY-MM-DD)"),
     end_date: Optional[str] = Query(None, description="End date filter (YYYY-MM-DD)"),
-    current_user: UserResponse = Depends(require_hr_or_admin)
+    current_user: UserResponse = Depends(require_hr_admin_or_ceo)
 ):
     """
     Get feedback statistics across all applications (admin/HR only).

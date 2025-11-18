@@ -101,12 +101,12 @@ const AppContent = () => {
           
           {/* HR and Admin Routes */}
           <Route path="applications" element={
-            <ProtectedRoute allowedRoles={['hr', 'admin', 'team_member']}>
+            <ProtectedRoute allowedRoles={['hr', 'admin', 'team_member', 'ceo']}>
               <ApplicationsList />
             </ProtectedRoute>
           } />
           <Route path="applications/:id" element={
-            <ProtectedRoute allowedRoles={['hr', 'admin', 'team_member', 'candidate']}>
+            <ProtectedRoute allowedRoles={['hr', 'admin', 'team_member', 'candidate', 'ceo']}>
               <ApplicationDetail />
             </ProtectedRoute>
           } />
@@ -142,7 +142,7 @@ const AppContent = () => {
           
           {/* Feedback Statistics - Admin and HR */}
           <Route path="feedback-statistics" element={
-            <ProtectedRoute allowedRoles={['admin', 'hr']}>
+            <ProtectedRoute allowedRoles={['admin', 'hr', 'ceo']}>
               <FeedbackStatistics />
             </ProtectedRoute>
           } />
