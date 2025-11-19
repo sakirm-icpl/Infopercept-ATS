@@ -73,10 +73,26 @@ class FeedbackService:
         # HR and Admin can submit feedback for any stage
         # Team members can only submit for stages assigned to them
         if user_role not in ["hr", "admin"]:
+            # Check both application stages field AND stage_assignments collection
+            is_assigned = False
+            
+            # First check the application document
             stage_assigned_to_field = f"stage{stage_number}_assigned_to"
             assigned_to = application.get("stages", {}).get(stage_assigned_to_field)
             
-            if assigned_to != submitted_by:
+            if assigned_to == submitted_by:
+                is_assigned = True
+            else:
+                # Fallback: Check stage_assignments collection
+                assignment = await self.db.stage_assignments.find_one({
+                    "application_id": application_id,
+                    "stage_number": stage_number,
+                    "assigned_to": submitted_by
+                })
+                if assignment:
+                    is_assigned = True
+            
+            if not is_assigned:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="You are not assigned to this stage. Only assigned team members can submit feedback."

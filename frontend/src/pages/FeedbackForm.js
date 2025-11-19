@@ -127,6 +127,27 @@ const FeedbackForm = () => {
       }
       
       // For team members, verify they are assigned to this stage
+      // Check both the application stages field AND the stage_assignments collection
+      try {
+        // First, try to get assignments from the API
+        const assignmentsResponse = await apiClient.get(`/api/interviews/applications/${id}/assignments`);
+        const assignments = assignmentsResponse.data;
+        
+        // Check if user is assigned to this stage
+        const userAssignment = assignments.find(
+          a => a.stage_number === stageNumber && a.assigned_to === user?.id
+        );
+        
+        if (userAssignment) {
+          setIsAssigned(true);
+          setCheckingAssignment(false);
+          return;
+        }
+      } catch (assignmentErr) {
+        console.log('Could not fetch assignments, falling back to application check:', assignmentErr);
+      }
+      
+      // Fallback: Check the application document
       const response = await apiClient.get(`/api/applications/${id}`);
       const app = response.data;
       
